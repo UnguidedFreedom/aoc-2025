@@ -10,9 +10,9 @@ pub fn part_one(input: &str) -> Option<u64> {
                 false => value,
             }
         })
-        .fold((50i64, 0u64), |(val, count), value| {
-            let new_val = (val + value).rem_euclid(100);
-            (new_val, count + if new_val == 0 { 1 } else { 0 })
+        .fold((50i64, 0u64), |(dial, count), delta| {
+            let new_dial = (dial + delta).rem_euclid(100);
+            (new_dial, if new_dial == 0 { count + 1 } else { count })
         })
         .1;
 
@@ -29,18 +29,17 @@ pub fn part_two(input: &str) -> Option<u64> {
                 false => value,
             }
         })
-        .fold((50i64, 0u64), |(val, count), value| {
-            let new_val = val + value;
-            let mut new_count = count;
-            if new_val >= 100 {
-                new_count += (new_val / 100) as u64;
-            } else if new_val <= 0 {
-                new_count += ((-new_val) / 100) as u64;
-                if val != 0 {
-                    new_count += 1;
+        .fold((50i64, 0u64), |(dial, mut count), delta| {
+            let raw_new_dial = dial + delta;
+            if raw_new_dial >= 100 {
+                count += (raw_new_dial / 100) as u64;
+            } else if raw_new_dial <= 0 {
+                count += ((-raw_new_dial) / 100) as u64;
+                if dial != 0 {
+                    count += 1;
                 }
             }
-            (new_val.rem_euclid(100), new_count)
+            (raw_new_dial.rem_euclid(100), count)
         })
         .1;
 
