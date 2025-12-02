@@ -14,6 +14,15 @@ fn pow10(p: usize) -> u64 {
     10u64.pow(p as u32)
 }
 
+fn split(s: &str) -> (&str, &str) {
+    let m = s.len() / 2;
+    (&s[..m], &s[m..])
+}
+
+fn sum_between(start: u64, end: u64) -> u64 {
+    (end * (end + 1) - start * (start - 1)) / 2
+}
+
 pub fn part_one(input: &str) -> Option<u64> {
     let res: u64 = input
         .trim()
@@ -22,11 +31,10 @@ pub fn part_one(input: &str) -> Option<u64> {
         .map(|(start, end)| {
             let mut possibilities = 0u64;
             let (ls, le) = (start.len(), end.len());
+            let (s_first, s_second) = split(start);
+            let (e_first, e_second) = split(end);
             if ls == le {
                 if ls % 2 == 0 {
-                    let (s_first, s_second) = (&start[..ls / 2], &start[ls / 2..]);
-                    let (e_first, e_second) = (&end[..le / 2], &end[le / 2..]);
-
                     if s_first == e_first {
                         if s_second <= s_first && e_second >= s_first {
                             possibilities += value(s_first);
@@ -41,34 +49,32 @@ pub fn part_one(input: &str) -> Option<u64> {
                         }
 
                         let (s, e) = (parse(s_first), parse(e_first));
-                        let sum = e * (e - 1) / 2 - s * (s + 1) / 2;
+                        let sum = sum_between(s + 1, e - 1);
                         let sum2 = sum + sum * pow10(ls / 2);
                         possibilities += sum2;
                     }
                 }
             } else {
                 if ls % 2 == 0 {
-                    let (s_first, s_second) = (&start[..ls / 2], &start[ls / 2..]);
                     let s = parse(s_first);
                     if s_second <= s_first {
                         possibilities += value(s_first);
                     }
 
                     let e = pow10(ls / 2);
-                    let sum = e * (e - 1) / 2 - s * (s + 1) / 2;
+                    let sum = sum_between(s + 1, e - 1);
                     let sum2 = sum + sum * e;
                     possibilities += sum2;
                 }
 
                 if le % 2 == 0 {
-                    let (e_first, e_second) = (&end[..le / 2], &end[le / 2..]);
                     let e = parse(e_first);
                     if e_second >= e_first {
                         possibilities += value(e_first);
                     }
 
                     let s = pow10(le / 2 - 1);
-                    let sum = e * (e - 1) / 2 - s * (s - 1) / 2;
+                    let sum = sum_between(s, e - 1);
                     let sum2 = sum + sum * s * 10;
                     possibilities += sum2;
                 }
@@ -78,7 +84,7 @@ pub fn part_one(input: &str) -> Option<u64> {
                     .map(|digits| {
                         let s = pow10(digits - 1);
                         let e = 10 * s;
-                        let sum = e * (e - 1) / 2 - s * (s - 1) / 2;
+                        let sum = sum_between(s, e - 1);
                         sum + e * sum
                     })
                     .sum::<u64>();
@@ -92,7 +98,36 @@ pub fn part_one(input: &str) -> Option<u64> {
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
-    None
+    let res: u64 = input
+        .trim()
+        .split(',')
+        .map(|range| {
+            range
+                .split('-')
+                .map(|bound| parse(bound))
+                .collect_tuple::<(u64, u64)>()
+                .unwrap()
+        })
+        .flat_map(|(start, end)| start..=end)
+        .filter(|d| {
+            let ds = d.to_string();
+            let l = ds.len();
+
+            (1..=l / 2).any(|period| {
+                if l % period != 0 {
+                    return false;
+                }
+
+                (0..=l)
+                    .step_by(period)
+                    .tuple_windows()
+                    .map(|(start, end)| &ds[start..end])
+                    .all_equal()
+            })
+        })
+        .sum::<u64>();
+
+    Some(res)
 }
 
 #[cfg(test)]
@@ -108,6 +143,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(4174379265));
     }
 }
