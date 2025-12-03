@@ -20,13 +20,14 @@ fn sum_between(start: u64, end: u64) -> u64 {
 }
 
 fn gen_mult(length: usize, parts: usize) -> u64 {
-    parse(
-        format!(
-            "{}1",
-            format!("1{}", "0".repeat(length - 1)).repeat(parts - 1)
-        )
-        .as_str(),
-    )
+    let m = pow10(length);
+    let mut mult = 1;
+
+    for _ in 0..parts - 1 {
+        mult = mult * m + 1;
+    }
+
+    mult
 }
 
 fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> {
@@ -48,18 +49,18 @@ fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> 
 
         if spu == epu {
             if scu >= su && ecu <= eu {
-                *answers.entry(length).or_insert(0) += scu;
+                *answers.entry(length).or_default() += scu;
             }
         } else {
             if scu >= su {
-                *answers.entry(length).or_insert(0) += scu;
+                *answers.entry(length).or_default() += scu;
             }
             if ecu <= eu {
-                *answers.entry(length).or_insert(0) += ecu;
+                *answers.entry(length).or_default() += ecu;
             }
 
             let sum = sum_between(spu + 1, epu - 1);
-            *answers.entry(length).or_insert(0) += sum * mult;
+            *answers.entry(length).or_default() += sum * mult;
         }
     } else {
         if ls % parts == 0 {
@@ -71,13 +72,13 @@ fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> 
             let scu = spu * mult;
 
             if scu >= su {
-                *answers.entry(length).or_insert(0) += scu;
+                *answers.entry(length).or_default() += scu;
             }
 
             let e = pow10(length) - 1;
 
             let sum = sum_between(spu + 1, e);
-            *answers.entry(length).or_insert(0) += sum * mult;
+            *answers.entry(length).or_default() += sum * mult;
         }
 
         if le % parts == 0 {
@@ -89,13 +90,13 @@ fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> 
             let ecu = epu * mult;
 
             if ecu <= eu {
-                *answers.entry(length).or_insert(0) += ecu;
+                *answers.entry(length).or_default() += ecu;
             }
 
             let s = pow10(length - 1);
 
             let sum = sum_between(s, epu - 1);
-            *answers.entry(length).or_insert(0) += sum * mult;
+            *answers.entry(length).or_default() += sum * mult;
         }
 
         ((ls / parts) + 1..=((le - 1) / parts)).for_each(|length| {
@@ -103,7 +104,7 @@ fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> 
             let e = pow10(length) - 1;
             let sum = sum_between(s, e);
             let mult = gen_mult(length, parts);
-            *answers.entry(length).or_insert(0) += sum * mult;
+            *answers.entry(length).or_default() += sum * mult;
         });
     }
 
