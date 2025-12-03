@@ -145,10 +145,8 @@ pub fn part_two(input: &str) -> Option<u64> {
                             let val = val
                                 - res_map
                                     .iter()
-                                    .filter(|&(l2, _)| l % l2 == 0)
-                                    .map(|(l2, map2)| {
-                                        map2.get(&(parts * l / l2)).copied().unwrap_or_default()
-                                    })
+                                    .filter(|&(&l2, _)| l != l2 && l % l2 == 0)
+                                    .filter_map(|(&l2, map2)| map2.get(&(parts * l / l2)))
                                     .sum::<u64>();
                             res_map.entry(l).or_default().insert(parts, val);
                             val
