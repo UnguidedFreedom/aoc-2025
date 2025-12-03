@@ -1,5 +1,7 @@
 use itertools::Itertools;
 use std::collections::HashMap;
+use std::hash::Hash;
+use std::ops::AddAssign;
 
 advent_of_code::solution!(2);
 
@@ -30,6 +32,14 @@ fn gen_mult(length: usize, parts: usize) -> u64 {
     mult
 }
 
+fn repeated_sum(start: u64, end: u64, mult: u64) -> u64 {
+    sum_between(start, end) * mult
+}
+
+fn increment_map<K: Eq + Hash, V: Default + AddAssign>(map: &mut HashMap<K, V>, key: K, val: V) {
+    *map.entry(key).or_default() += val;
+}
+
 fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> {
     let (ls, le) = (start.len(), end.len());
     let (su, eu) = (parse(start), parse(end));
@@ -49,18 +59,17 @@ fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> 
 
         if spu == epu {
             if scu >= su && ecu <= eu {
-                *answers.entry(length).or_default() += scu;
+                increment_map(&mut answers, length, scu);
             }
         } else {
             if scu >= su {
-                *answers.entry(length).or_default() += scu;
+                increment_map(&mut answers, length, scu);
             }
             if ecu <= eu {
-                *answers.entry(length).or_default() += ecu;
+                increment_map(&mut answers, length, ecu);
             }
 
-            let sum = sum_between(spu + 1, epu - 1);
-            *answers.entry(length).or_default() += sum * mult;
+            increment_map(&mut answers, length, repeated_sum(spu + 1, epu - 1, mult));
         }
     } else {
         if ls % parts == 0 {
@@ -72,13 +81,12 @@ fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> 
             let scu = spu * mult;
 
             if scu >= su {
-                *answers.entry(length).or_default() += scu;
+                increment_map(&mut answers, length, scu);
             }
 
             let e = pow10(length) - 1;
 
-            let sum = sum_between(spu + 1, e);
-            *answers.entry(length).or_default() += sum * mult;
+            increment_map(&mut answers, length, repeated_sum(spu + 1, e, mult));
         }
 
         if le % parts == 0 {
@@ -90,21 +98,19 @@ fn solve_for_parts(start: &str, end: &str, parts: usize) -> HashMap<usize, u64> 
             let ecu = epu * mult;
 
             if ecu <= eu {
-                *answers.entry(length).or_default() += ecu;
+                increment_map(&mut answers, length, ecu);
             }
 
             let s = pow10(length - 1);
 
-            let sum = sum_between(s, epu - 1);
-            *answers.entry(length).or_default() += sum * mult;
+            increment_map(&mut answers, length, repeated_sum(s, epu - 1, mult));
         }
 
         ((ls / parts) + 1..=((le - 1) / parts)).for_each(|length| {
             let s = pow10(length - 1);
             let e = pow10(length) - 1;
-            let sum = sum_between(s, e);
             let mult = gen_mult(length, parts);
-            *answers.entry(length).or_default() += sum * mult;
+            increment_map(&mut answers, length, repeated_sum(s, e, mult));
         });
     }
 
