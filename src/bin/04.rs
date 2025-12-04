@@ -58,26 +58,20 @@ pub fn part_two(input: &str) -> Option<u64> {
 
     let mut res = 0;
 
+    let n = grid.len();
+    let m = grid[0].len();
+
     loop {
         let mut modifs = 0;
 
-        grid = grid
-            .iter()
-            .enumerate()
-            .map(|(i, row)| {
-                row.iter()
-                    .enumerate()
-                    .map(|(j, &c)| {
-                        if c == '@' && count_adjacents(&grid, i as isize, j as isize) < 4 {
-                            modifs += 1;
-                            '.'
-                        } else {
-                            c
-                        }
-                    })
-                    .collect_vec()
-            })
-            .collect_vec();
+        for i in 0..n {
+            for j in 0..m {
+                if grid[i][j] == '@' && count_adjacents(&grid, i as isize, j as isize) < 4 {
+                    modifs += 1;
+                    grid[i][j] = '.';
+                }
+            }
+        }
 
         if modifs == 0 {
             break;
