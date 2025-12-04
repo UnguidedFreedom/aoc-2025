@@ -50,7 +50,43 @@ pub fn part_one(input: &str) -> Option<u64> {
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
-    None
+    let mut grid = input
+        .trim()
+        .lines()
+        .map(|line| line.chars().collect_vec())
+        .collect_vec();
+
+    let mut res = 0;
+
+    loop {
+        let mut modifs = 0;
+
+        grid = grid
+            .iter()
+            .enumerate()
+            .map(|(i, row)| {
+                row.iter()
+                    .enumerate()
+                    .map(|(j, &c)| {
+                        if c == '@' && count_adjacents(&grid, i as isize, j as isize) < 4 {
+                            modifs += 1;
+                            '.'
+                        } else {
+                            c
+                        }
+                    })
+                    .collect_vec()
+            })
+            .collect_vec();
+
+        if modifs == 0 {
+            break;
+        }
+
+        res += modifs;
+    }
+
+    Some(res)
 }
 
 #[cfg(test)]
@@ -66,6 +102,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(43));
     }
 }
