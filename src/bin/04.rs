@@ -2,37 +2,33 @@ use itertools::Itertools;
 
 advent_of_code::solution!(4);
 
-fn get_adjacent(grid: &[Vec<char>], i: isize, j: isize) -> char {
+const COMPARE: usize = 4;
+
+fn get_adjacent(grid: &[Vec<bool>], i: isize, j: isize) -> bool {
     if (0..grid.len() as isize).contains(&i) {
         let row = &grid[i as usize];
         if (0..row.len() as isize).contains(&j) {
             return row[j as usize];
         }
     }
-    '.'
+    false
 }
 
-fn count_adjacents(grid: &[Vec<char>], i: isize, j: isize) -> u64 {
+fn count_adjacents(grid: &[Vec<bool>], i: isize, j: isize) -> usize {
     (-1isize..=1)
         .map(|di| {
             (-1isize..=1)
-                .filter(|&dj| {
-                    if di != 0 || dj != 0 {
-                        get_adjacent(grid, i + di, j + dj) == '@'
-                    } else {
-                        false
-                    }
-                })
-                .count() as u64
+                .filter(|&dj| (di != 0 || dj != 0) && get_adjacent(grid, i + di, j + dj))
+                .count()
         })
-        .sum::<u64>()
+        .sum()
 }
 
 pub fn part_one(input: &str) -> Option<u64> {
     let grid = input
         .trim()
         .lines()
-        .map(|line| line.chars().collect_vec())
+        .map(|line| line.chars().map(|c| c == '@').collect_vec())
         .collect_vec();
 
     let res = grid
@@ -41,7 +37,7 @@ pub fn part_one(input: &str) -> Option<u64> {
         .map(|(i, row)| {
             row.iter()
                 .enumerate()
-                .filter(|&(j, &c)| c == '@' && count_adjacents(&grid, i as isize, j as isize) < 4)
+                .filter(|&(j, &c)| c && count_adjacents(&grid, i as isize, j as isize) < COMPARE)
                 .count() as u64
         })
         .sum::<u64>();
@@ -53,7 +49,7 @@ pub fn part_two(input: &str) -> Option<u64> {
     let mut grid = input
         .trim()
         .lines()
-        .map(|line| line.chars().collect_vec())
+        .map(|line| line.chars().map(|c| c == '@').collect_vec())
         .collect_vec();
 
     let mut res = 0;
@@ -66,9 +62,9 @@ pub fn part_two(input: &str) -> Option<u64> {
 
         for i in 0..n {
             for j in 0..m {
-                if grid[i][j] == '@' && count_adjacents(&grid, i as isize, j as isize) < 4 {
+                if grid[i][j] && count_adjacents(&grid, i as isize, j as isize) < COMPARE {
                     modifs += 1;
-                    grid[i][j] = '.';
+                    grid[i][j] = false;
                 }
             }
         }
