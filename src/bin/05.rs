@@ -6,22 +6,20 @@ advent_of_code::solution!(5);
 pub fn part_one(input: &str) -> Option<u64> {
     let mut iter = input.trim().lines();
 
-    let ranges = (&mut iter)
+    let ranges: Vec<(u64, u64)> = (&mut iter)
         .take_while(|l| !l.is_empty())
         .map(|l| {
-            let (a, b) = l
-                .split('-')
+            l.split('-')
                 .map(|s| s.parse::<u64>().unwrap())
                 .collect_tuple()
-                .unwrap();
-            a..=b
+                .unwrap()
         })
         .collect_vec();
 
     let res = iter
         .filter(|s| {
             let n = s.parse::<u64>().unwrap();
-            ranges.iter().any(|r| r.contains(&n))
+            ranges.iter().any(|r| r.0 <= n && n <= r.1)
         })
         .count() as u64;
 
