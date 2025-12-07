@@ -4,21 +4,17 @@ use std::collections::{HashMap, HashSet};
 advent_of_code::solution!(7);
 
 pub fn part_one(input: &str) -> Option<u64> {
-    let mut lines = input.lines();
+    let mut lines = input.lines().map(|l| l.chars());
 
-    let start = lines
-        .next()
-        .unwrap()
-        .chars()
-        .position(|c| c == 'S')
-        .unwrap();
+    let start = lines.next().unwrap().position(|c| c == 'S').unwrap();
 
     let mut res = 0;
 
     lines.fold(HashSet::from([start]), |beams, line| {
+        let line = line.collect_vec();
         beams
             .into_iter()
-            .flat_map(|beam| match line.chars().nth(beam).unwrap() {
+            .flat_map(|beam| match line[beam] {
                 '^' => {
                     res += 1;
                     vec![beam - 1, beam + 1]
@@ -32,19 +28,15 @@ pub fn part_one(input: &str) -> Option<u64> {
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
-    let mut lines = input.lines();
+    let mut lines = input.lines().map(|l| l.chars());
 
-    let start = lines
-        .next()
-        .unwrap()
-        .chars()
-        .position(|c| c == 'S')
-        .unwrap();
+    let start = lines.next().unwrap().position(|c| c == 'S').unwrap();
 
     let out = lines.fold(HashMap::from([(start, 1)]), |beams, line| {
+        let line = line.collect_vec();
         beams
             .into_iter()
-            .flat_map(|(beam, count)| match line.chars().nth(beam).unwrap() {
+            .flat_map(|(beam, count)| match line[beam] {
                 '^' => {
                     vec![(beam - 1, count), (beam + 1, count)]
                 }
