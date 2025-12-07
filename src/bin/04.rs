@@ -2,6 +2,17 @@ use itertools::Itertools;
 
 advent_of_code::solution!(4);
 
+const ADJACENTS: [(isize, isize); 8] = [
+    (-1, -1),
+    (-1, 0),
+    (-1, 1),
+    (0, -1),
+    (0, 1),
+    (1, -1),
+    (1, 0),
+    (1, 1),
+];
+
 const COMPARE: usize = 4;
 
 fn get_adjacent(grid: &[Vec<bool>], i: isize, j: isize) -> bool {
@@ -15,13 +26,10 @@ fn get_adjacent(grid: &[Vec<bool>], i: isize, j: isize) -> bool {
 }
 
 fn count_adjacents(grid: &[Vec<bool>], i: isize, j: isize) -> usize {
-    (-1isize..=1)
-        .map(|di| {
-            (-1isize..=1)
-                .filter(|&dj| (di != 0 || dj != 0) && get_adjacent(grid, i + di, j + dj))
-                .count()
-        })
-        .sum()
+    ADJACENTS
+        .iter()
+        .filter(|(di, dj)| get_adjacent(grid, i + di, j + dj))
+        .count()
 }
 
 pub fn part_one(input: &str) -> Option<u64> {
@@ -46,34 +54,50 @@ pub fn part_one(input: &str) -> Option<u64> {
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
+    let mut positions = vec![];
+
     let mut grid = input
         .trim()
         .lines()
-        .map(|line| line.chars().map(|c| c == '@').collect_vec())
+        .enumerate()
+        .map(|(i, line)| {
+            line.char_indices()
+                .map(|(j, c)| {
+                    let is_paper = c == '@';
+                    if is_paper {
+                        positions.push((i, j))
+                    }
+                    is_paper
+                })
+                .collect_vec()
+        })
         .collect_vec();
 
     let mut res = 0;
 
-    let n = grid.len();
-    let m = grid[0].len();
+    // let n = grid.len();
+    // let m = grid[0].len();
 
     loop {
-        let mut modifs = 0;
+        let len = positions.len();
+        let mut new_positions = Vec::with_capacity(len);
 
-        for i in 0..n {
-            for j in 0..m {
-                if grid[i][j] && count_adjacents(&grid, i as isize, j as isize) < COMPARE {
-                    modifs += 1;
-                    grid[i][j] = false;
-                }
+        for (i, j) in positions {
+            if count_adjacents(&grid, i as isize, j as isize) < COMPARE {
+                grid[i][j] = false;
+            } else {
+                new_positions.push((i, j));
             }
         }
+
+        let modifs = (len - new_positions.len()) as u64;
 
         if modifs == 0 {
             break;
         }
 
         res += modifs;
+        positions = new_positions;
     }
 
     Some(res)
