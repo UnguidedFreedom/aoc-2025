@@ -75,29 +75,25 @@ pub fn part_two(input: &str) -> Option<u64> {
 
     let mut res = 0;
 
-    // let n = grid.len();
-    // let m = grid[0].len();
-
     loop {
         let len = positions.len();
-        let mut new_positions = Vec::with_capacity(len);
 
-        for (i, j) in positions {
+        positions.retain(|&(i, j)| {
             if count_adjacents(&grid, i as isize, j as isize) < COMPARE {
                 grid[i][j] = false;
+                false
             } else {
-                new_positions.push((i, j));
+                true
             }
-        }
+        });
 
-        let modifs = (len - new_positions.len()) as u64;
+        let modifs = (len - positions.len()) as u64;
 
         if modifs == 0 {
             break;
         }
 
         res += modifs;
-        positions = new_positions;
     }
 
     Some(res)
