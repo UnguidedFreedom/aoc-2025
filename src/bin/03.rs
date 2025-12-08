@@ -1,16 +1,20 @@
 advent_of_code::solution!(3);
 
 fn highest(input: &str) -> (usize, char) {
-    input
-        .char_indices()
-        .reduce(|(pos_max, char_max), (pos, char)| {
-            if char > char_max {
-                (pos, char)
-            } else {
-                (pos_max, char_max)
-            }
-        })
-        .unwrap()
+    let mut iter = input.char_indices();
+    let mut res = iter.next().unwrap();
+    if res.1 == '9' {
+        return res;
+    }
+    for opt in iter {
+        if opt.1 == '9' {
+            return opt;
+        }
+        if opt.1 > res.1 {
+            res = opt;
+        }
+    }
+    res
 }
 
 const ZERO: u64 = '0' as u64;
