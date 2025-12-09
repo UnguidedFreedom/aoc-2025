@@ -37,7 +37,7 @@ pub fn part_two(input: &str) -> Option<u64> {
                 .collect_tuple()
                 .unwrap()
         })
-        .sorted_by(|a: &(u64, u64), b: &(u64, u64)| Ord::cmp(&a.0, &b.0))
+        .sorted_unstable_by_key(|a: &(u64, u64)| a.0)
         .collect_vec();
 
     let mut max_end: u64 = 0;

@@ -34,7 +34,7 @@ pub fn part_one(input: &str) -> Option<u64> {
         .iter()
         .tuple_combinations()
         .map(|(a, b)| (a, b, dist(a, b)))
-        .sorted_by(|a, b| a.2.cmp(&b.2))
+        .sorted_unstable_by_key(|a| a.2)
         .take(iterations)
         .for_each(|(&a, &b, _)| {
             let (ca, cb) = (box_2_circuit[&a], box_2_circuit[&b]);
@@ -51,7 +51,7 @@ pub fn part_one(input: &str) -> Option<u64> {
     let res = circuits
         .values()
         .map(|v| v.len() as u64)
-        .sorted()
+        .sorted_unstable()
         .rev()
         .take(3)
         .product::<u64>();
@@ -79,7 +79,7 @@ pub fn part_two(input: &str) -> Option<u64> {
         .iter()
         .tuple_combinations::<(&Coords, &Coords)>()
         .map(|(a, b)| (a, b, dist(a, b)))
-        .sorted_by(|a, b| a.2.cmp(&b.2));
+        .sorted_unstable_by_key(|a| a.2);
 
     for (&a, &b, _) in iter {
         let (ca, cb) = (box_2_circuit[&a], box_2_circuit[&b]);
