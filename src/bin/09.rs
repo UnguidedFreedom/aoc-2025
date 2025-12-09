@@ -56,7 +56,7 @@ pub fn part_two(input: &str) -> Option<u64> {
         .iter()
         .tuple_combinations()
         .map(|(a, b)| (a, b, (a.0.abs_diff(b.0) + 1) * (a.1.abs_diff(b.1) + 1)))
-        .sorted_by_key(|(_, _, d)| Reverse(*d))
+        .sorted_unstable_by_key(|(_, _, d)| Reverse(*d))
         .find(|(a, b, _)| {
             let (i1, i2) = sorted_pair(a.0, b.0);
             let (j1, j2) = sorted_pair(a.1, b.1);
