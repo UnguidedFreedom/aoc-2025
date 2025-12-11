@@ -25,7 +25,7 @@ impl Partial {
     pub fn fft(&self) -> Self {
         Partial {
             none: 0,
-            fft: self.fft + self.none,
+            fft: self.none,
             dac: 0,
             both: self.both + self.dac,
         }
@@ -35,7 +35,7 @@ impl Partial {
         Partial {
             none: 0,
             fft: 0,
-            dac: self.dac + self.none,
+            dac: self.none,
             both: self.both + self.fft,
         }
     }
